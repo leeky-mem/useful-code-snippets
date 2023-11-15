@@ -37,5 +37,5 @@ int main (void)
 	res = ~(res) ;
 	cc= 0x01 + res;
 	printf("cc= 0x%02x", cc);
-  return 0;
+  	return 0;
 }
