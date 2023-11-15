@@ -26,16 +26,14 @@ where:
 
 // one line of an intel hex file without leading colon and cecksum (last byte)
 static uint8_t val[len]= {0x10,0x06,0x20,0x00,0x2C,0xD9,0x61,0x19,0x08,0xF1,0xFF,0x33,0x04,0xD2,0x8E,0x45,0x02,0xD9,0xA8,0xF1};
-static uint8_t res=0;
 static uint8_t cc=0;
 
 int main (void)
 {
 	for (int i =0; i < len; i++){
-		res += val[i];
+		cc += val[i];
 	}
-	res = ~(res) ;
-	cc= 0x01 + res;
+	cc= 0x01 + ~(cc);
 	printf("cc= 0x%02x", cc);
   	return 0;
 }
