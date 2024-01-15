@@ -1,1 +1,1 @@
-A collection of usefull code, which I wrote and are not worth to create a separate repo for.
+A collection of usefull code snippets, which are not worth to create a separate repo for.
