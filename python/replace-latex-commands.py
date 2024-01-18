@@ -5,7 +5,7 @@ import time
 # commands_that_dont_need_block['\\label']
 # commands_that_need_block_replaced['\\autoref', '\\secref', '\\cite']
 
-def find_next_command(buf):
+def find_command(buf):
 	ind_s = buf.find('\\')
 	if ind_s == -1:
 		return -1
@@ -33,9 +33,10 @@ if len(sys.argv) != 2:
 f = open(sys.argv[1], "r")
 buf = f.read()
 while 1:
-	command = find_next_command(buf)
+	command = find_command(buf)
 	if command == -1:
 		break
+	print(command[0])
 	match command[0]:
 		case '\\section':
 			buf = remove_command(buf, command[1])
@@ -58,18 +59,22 @@ while 1:
 		case '\\label':
 			buf = remove_command_and_block(buf, command[1])
 		case '\\autoref':
-			buf = remove_command_replace_block(buf, command[1], 'Figure1')
+			buf = remove_command_replace_block(buf, command[1], 'Figure 1')
 		case '\\secref':
-			buf = remove_command_replace_block(buf, command[1], 'Section1')
+			buf = remove_command_replace_block(buf, command[1], 'Section 1')
 		case '\\cite':
 			buf = remove_command_replace_block(buf, command[1], '[1]')
 		case '\\begin':
+			print("found begin")
 			ind_end_s = buf.find('\\end')
 			ind_end_e = buf.find('}', ind_end_s, ind_end_s + 20)
 			buf = buf[:command[1][0]] + buf[ind_end_e + 1:]
 		case _:
 			print("Found not handeled command:" + command[0])
+			print(command)
 			print("Please add and try again")
+			print()
+			print(buf)
 			sys.exit()
 
 print(buf)
