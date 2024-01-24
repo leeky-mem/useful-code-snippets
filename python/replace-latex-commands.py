@@ -6,12 +6,23 @@ STR_LEN_BEGIN = 6
 # commands_that_need_block['\\section', '\\subsection', '\\subsubsection', '\\paragraphb', '\\par', '\\ac', '\\texttt', '\\textbf', '\\textit']
 # commands_that_dont_need_block['\\label']
 # commands_that_need_block_replaced['\\autoref', '\\secref', '\\cite']
+chars_need_escaping = ['%', '$', '{', '}', '_', 'P', '#', '&', 'S']
 
-def remove_inline_mathmode(buf):
+def remove_all_escape_char(buf):
+	ind = buf.find('\\')
+	while ind != -1:
+		if buf[ind + 1] in chars_need_escaping:
+			buf = ''.join((buf[:ind], buf[ind + 1:]))
+		else:
+			ind = ind + 1
+		ind = buf.find('\\', ind)
+	return buf
+
+def remove_all_inline_mathmode(buf):
 	ind_s = buf.find('$')
 	while ind_s != -1:
 		ind_e = buf.find('$', ind_s + 1)
-		buf = buf[:ind_s] + buf[ind_e + 1:]
+		buf = ''.join((buf[:ind_s], buf[ind_e + 1:]))
 		ind_s = buf.find('$')
 	return buf
 
@@ -23,24 +34,21 @@ def find_command(buf):
 	ind_e = min(buf.find("{", ind_s), ind_w)
 	return (buf[ind_s:ind_e], (ind_s, ind_e))
 
-def remove_escape_char(buf, indexes):
-	return buf[:indexes[0]] + buf[indexes[1] - 1 :]
-
 def remove_command_without_braces(buf, indexes):
-	return buf[:indexes[0]] + buf[indexes[1] + 1 :]
+	return ''.join((buf[:indexes[0]], buf[indexes[1] + 1 :]))
 
 def remove_command(buf, indexes):
-	buf = buf[:indexes[0]] + buf[indexes[1] + 1 :]
+	buf = ''.join((buf[:indexes[0]], buf[indexes[1] + 1 :]))
 	buf = buf.replace('}','',1)
 	return buf
 
 def remove_command_and_block(buf, indexes):
 	ind_e = buf.find('}', indexes[1])
-	return buf[:indexes[0]] + buf[ind_e + 1:]
+	return ''.join((buf[:indexes[0]], buf[ind_e + 1:]))
 
 def remove_command_replace_block(buf, indexes, replace_with):
 	ind_e = buf.find('}', indexes[0])
-	return buf[:indexes[0]] + replace_with + buf[ind_e + 1:]
+	return ''.join((buf[:indexes[0]], replace_with, buf[ind_e + 1:]))
 
 def remove_begin_end_block(buf, indexes):
 	ind_b = buf.find('\\begin', indexes[1])
@@ -51,11 +59,11 @@ def remove_begin_end_block(buf, indexes):
 			ind_b = buf.find('\\begin', indexes[1])
 			ind_end_s = buf.find('\\end', indexes[1])
 	ind_end_e = buf.find('}', ind_end_s)
-	return buf[:indexes[0]] + buf[ind_end_e + 1:]
+	return ''.join((buf[:indexes[0]], buf[ind_end_e + 1:]))
 
 def remove_inlinecode_command(buf, indexes):
 	ind_e = buf.find('}', indexes[1])
-	buf = buf[:indexes[0]] + buf[ind_e + 1:]
+	buf = ''.join((buf[:indexes[0]], buf[ind_e + 1:]))
 	buf = buf.replace('{','',1)
 	buf = buf.replace('}','',1)
 	return buf
@@ -68,7 +76,8 @@ buf = f.read()
 if buf[-1] != "\n":
 	buf = ''.join((buf,"\n"))
 
-buf = remove_inline_mathmode(buf)
+buf = remove_all_escape_char(buf)
+buf = remove_all_inline_mathmode(buf)
 
 while 1:
 	command = find_command(buf)
@@ -100,10 +109,6 @@ while 1:
 			buf = remove_command_without_braces(buf, command[1])
 		case '\\newline':
 			buf = remove_command_without_braces(buf, command[1])
-		case '\\&':
-			buf = remove_escape_char(buf, command[1])
-		case '\\\\':
-			buf = remove_escape_char(buf, command[1])
 		case '\\label':
 			buf = remove_command_and_block(buf, command[1])
 		case '\\autoref':
