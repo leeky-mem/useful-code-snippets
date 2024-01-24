@@ -7,6 +7,14 @@ STR_LEN_BEGIN = 6
 # commands_that_dont_need_block['\\label']
 # commands_that_need_block_replaced['\\autoref', '\\secref', '\\cite']
 
+def remove_inline_mathmode(buf):
+	ind_s = buf.find('$')
+	while ind_s != -1:
+		ind_e = buf.find('$', ind_s + 1)
+		buf = buf[:ind_s] + buf[ind_e + 1:]
+		ind_s = buf.find('$')
+	return buf
+
 def find_command(buf):
 	ind_s = buf.find('\\')
 	if ind_s == -1:
@@ -28,8 +36,7 @@ def remove_command(buf, indexes):
 
 def remove_command_and_block(buf, indexes):
 	ind_e = buf.find('}', indexes[1])
-	buf = buf[:indexes[0]] + buf[ind_e + 1:]
-	return buf
+	return buf[:indexes[0]] + buf[ind_e + 1:]
 
 def remove_command_replace_block(buf, indexes, replace_with):
 	ind_e = buf.find('}', indexes[0])
@@ -60,6 +67,8 @@ f = open(sys.argv[1], "r")
 buf = f.read()
 if buf[-1] != "\n":
 	buf = ''.join((buf,"\n"))
+
+buf = remove_inline_mathmode(buf)
 
 while 1:
 	command = find_command(buf)
