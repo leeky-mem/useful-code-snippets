@@ -27,10 +27,7 @@ def remove_command(buf, indexes):
 	return buf
 
 def remove_command_and_block(buf, indexes):
-	ind_e = buf.find('}', indexes[1], indexes[1] + 25)
-	if ind_e == -1:
-		sys.exit()
-
+	ind_e = buf.find('}', indexes[1])
 	buf = buf[:indexes[0]] + buf[ind_e + 1:]
 	return buf
 
@@ -80,6 +77,8 @@ while 1:
 		case '\\textbf':
 			buf = remove_command(buf, command[1])
 		case '\\par':
+			buf = remove_command_without_braces(buf, command[1])
+		case '\\newline':
 			buf = remove_command_without_braces(buf, command[1])
 		case '\\&':
 			buf = remove_escape_char(buf, command[1])
