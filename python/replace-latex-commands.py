@@ -46,6 +46,13 @@ def remove_begin_end_block(buf, indexes):
 	ind_end_e = buf.find('}', ind_end_s)
 	return buf[:indexes[0]] + buf[ind_end_e + 1:]
 
+def remove_inlinecode_command(buf, indexes):
+	ind_e = buf.find('}', indexes[1])
+	buf = buf[:indexes[0]] + buf[ind_e + 1:]
+	buf = buf.replace('{','',1)
+	buf = buf.replace('}','',1)
+	return buf
+
 if len(sys.argv) != 2:
 	print("Exactly one argument needed! The Path to the input file.")
 
@@ -76,6 +83,10 @@ while 1:
 			buf = remove_command(buf, command[1])
 		case '\\textbf':
 			buf = remove_command(buf, command[1])
+		case '\\textit':
+			buf = remove_command(buf, command[1])
+		case '\\inlinecode':
+			buf = remove_inlinecode_command(buf, command[1])
 		case '\\par':
 			buf = remove_command_without_braces(buf, command[1])
 		case '\\newline':
