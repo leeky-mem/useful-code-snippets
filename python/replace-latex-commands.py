@@ -31,7 +31,11 @@ def find_command(buf):
 	if ind_s == -1:
 		return -1
 	ind_w = re.search(r"\s", buf[ind_s:]).start() + ind_s
-	ind_e = min(buf.find("{", ind_s), ind_w)
+	ind_b = buf.find("{", ind_s)
+	if ind_b != -1:
+		ind_e = min(ind_b, ind_w)
+	else:
+		ind_e = ind_w
 	return (buf[ind_s:ind_e], (ind_s, ind_e))
 
 def remove_command_without_braces(buf, indexes):
